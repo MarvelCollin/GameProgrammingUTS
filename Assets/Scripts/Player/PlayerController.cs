@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxY = 20f;
     
     [Header("Collision Settings")]
-    [SerializeField] private Vector2 colliderSize = new Vector2(1f, 1f);
+    [SerializeField] private Vector2 colliderSize = new Vector2(0.2f, 0.2f);
     [SerializeField] private Vector2 colliderOffset = Vector2.zero;
     
     [Header("Debug")]
@@ -42,7 +42,13 @@ public class PlayerController : MonoBehaviour
         if (boxCollider != null)
         {
             boxCollider.isTrigger = false;
-            boxCollider.size = colliderSize;
+            
+            Vector2 adjustedSize = colliderSize;
+            Vector3 scale = transform.localScale;
+            if (scale.x != 0) adjustedSize.x /= Mathf.Abs(scale.x);
+            if (scale.y != 0) adjustedSize.y /= Mathf.Abs(scale.y);
+            
+            boxCollider.size = adjustedSize;
             boxCollider.offset = colliderOffset;
             
             if (showCollisionBorder)

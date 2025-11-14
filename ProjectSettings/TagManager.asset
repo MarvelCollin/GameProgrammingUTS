@@ -12,8 +12,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Player
+  - Environment
   - 
   - 
   - 
@@ -44,6 +44,9 @@ TagManager:
     locked: 0
   - name: Ground
     uniqueID: 3120388461
+    locked: 0
+  - name: New Layer 2
+    uniqueID: 599898859
     locked: 0
   m_RenderingLayers:
   - Default
