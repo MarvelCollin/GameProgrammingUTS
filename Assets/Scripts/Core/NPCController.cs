@@ -16,10 +16,6 @@ public class NPCController : MonoBehaviour
     private Transform player;
     private WorldSpaceUI worldSpaceUI;
     
-    private const string HUMAN_SPRITE_PATH = "Sunnyside_World_Assets/Characters/Human/IDLE/base_idle_strip9";
-    private const string GOBLIN_SPRITE_PATH = "Sunnyside_World_Assets/Characters/Goblin/PNG/spr_idle_strip9";
-    private const string SKELETON_SPRITE_PATH = "Sunnyside_World_Assets/Characters/Skeleton/PNG/skeleton_idle_strip6";
-    
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -32,7 +28,7 @@ public class NPCController : MonoBehaviour
             worldSpaceUI.SetOffset(new Vector3(0, -0.25f, 0));
         }
         
-        transform.localScale = new Vector3(5f, 5f, 1f);
+        transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
         
         if (autoLoadSprite)
         {
@@ -42,7 +38,7 @@ public class NPCController : MonoBehaviour
     
     private void Start()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        GameObject playerObj = GameObject.FindGameObjectWithTag(GameConstants.Tags.Player);
         if (playerObj != null)
         {
             player = playerObj.transform;
@@ -65,45 +61,17 @@ public class NPCController : MonoBehaviour
     private void Interact()
     {
         string interactionMessage = $"Talking with {npcName}";
-        
-        if (worldSpaceUI != null)
-        {
-            worldSpaceUI.ShowMessage(interactionMessage);
-        }
-        
-        if (GameUIManager.Instance != null)
-        {
-            GameUIManager.Instance.ShowMessage(interactionMessage);
-        }
-        
+        MessageBroadcaster.Instance.SendMessageToObject(gameObject, interactionMessage);
         Debug.Log(interactionMessage);
     }
     
     private void LoadSpriteBasedOnType()
     {
-        string spritePath = "";
+        Sprite[] sprites = SpriteFactory.GetNPCSprites(npcType);
         
-        switch (npcType)
+        if (sprites != null && sprites.Length > 0)
         {
-            case NPCType.Human:
-                spritePath = HUMAN_SPRITE_PATH;
-                break;
-            case NPCType.Goblin:
-                spritePath = GOBLIN_SPRITE_PATH;
-                break;
-            case NPCType.Skeleton:
-                spritePath = SKELETON_SPRITE_PATH;
-                break;
-        }
-        
-        if (!string.IsNullOrEmpty(spritePath))
-        {
-            Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
-            
-            if (sprites != null && sprites.Length > 0)
-            {
-                spriteRenderer.sprite = sprites[0];
-            }
+            spriteRenderer.sprite = sprites[0];
         }
     }
     

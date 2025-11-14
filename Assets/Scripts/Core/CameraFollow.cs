@@ -34,14 +34,14 @@ public class CameraFollow : MonoBehaviour
             return;
         }
         
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        GameObject player = GameObject.FindGameObjectWithTag(GameConstants.Tags.Player);
         if (player != null)
         {
             target = player.transform;
             return;
         }
         
-        player = GameObject.Find("Player");
+        player = GameObject.Find(GameConstants.Tags.Player);
         if (player != null)
         {
             target = player.transform;

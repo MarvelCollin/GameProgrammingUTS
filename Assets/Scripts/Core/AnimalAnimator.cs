@@ -35,15 +35,8 @@ public class AnimalAnimator : MonoBehaviour
         
         if (animalSprites != null && animalSprites.Length > 0)
         {
-            float frameDelay = 0.15f;
-            int currentFrame = 0;
-            
-            while (true)
-            {
-                spriteRenderer.sprite = animalSprites[currentFrame];
-                currentFrame = (currentFrame + 1) % animalSprites.Length;
-                yield return new WaitForSeconds(frameDelay);
-            }
+            IAnimationStrategy idleStrategy = new LoopAnimationStrategy(animalSprites, GameConstants.Animation.SlowFrameDelay);
+            yield return StartCoroutine(idleStrategy.Play(spriteRenderer));
         }
     }
     
@@ -58,12 +51,10 @@ public class AnimalAnimator : MonoBehaviour
         
         if (animalSprites != null && animalSprites.Length > 0)
         {
-            float frameDelay = 0.08f;
-            
-            for (int i = 0; i < animalSprites.Length * 2; i++)
+            for (int cycle = 0; cycle < 2; cycle++)
             {
-                spriteRenderer.sprite = animalSprites[i % animalSprites.Length];
-                yield return new WaitForSeconds(frameDelay);
+                IAnimationStrategy interactionStrategy = new OnceAnimationStrategy(animalSprites, 0.08f);
+                yield return StartCoroutine(interactionStrategy.Play(spriteRenderer));
             }
         }
     }
@@ -71,15 +62,6 @@ public class AnimalAnimator : MonoBehaviour
     private Sprite[] GetAnimalSprites()
     {
         if (animalController == null) return null;
-        
-        string spritePath = animalController.GetAnimalSpritePath();
-        
-        if (!string.IsNullOrEmpty(spritePath))
-        {
-            Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
-            return sprites != null && sprites.Length > 0 ? sprites : null;
-        }
-        
-        return null;
+        return SpriteFactory.GetAnimalSprites(animalController.GetAnimalType());
     }
 }

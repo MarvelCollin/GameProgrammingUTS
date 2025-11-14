@@ -32,9 +32,9 @@ public class CropController : MonoBehaviour
         }
         
         triggerCollider.isTrigger = true;
-        triggerCollider.radius = 0.5f;
+        triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius;
         
-        transform.localScale = new Vector3(5f, 5f, 1f);
+        transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
         
         LoadSprite();
     }
@@ -43,37 +43,17 @@ public class CropController : MonoBehaviour
     {
         if (spriteRenderer.sprite == null)
         {
-            string spritePath = GetCropSpritePath();
-            if (!string.IsNullOrEmpty(spritePath))
+            Sprite sprite = SpriteFactory.GetCropSprite(cropType);
+            if (sprite != null)
             {
-                Sprite sprite = Resources.Load<Sprite>(spritePath);
-                if (sprite != null)
-                {
-                    spriteRenderer.sprite = sprite;
-                }
+                spriteRenderer.sprite = sprite;
             }
         }
     }
     
     private string GetCropSpritePath()
     {
-        switch (cropType)
-        {
-            case CropType.Carrot:
-                return "Sunnyside_World_Assets/Elements/Crops/carrot_05";
-            case CropType.Potato:
-                return "Sunnyside_World_Assets/Elements/Crops/potato_05";
-            case CropType.Wheat:
-                return "Sunnyside_World_Assets/Elements/Crops/wheat_05";
-            case CropType.Pumpkin:
-                return "Sunnyside_World_Assets/Elements/Crops/pumpkin_05";
-            case CropType.Cabbage:
-                return "Sunnyside_World_Assets/Elements/Crops/cabbage_05";
-            case CropType.Beetroot:
-                return "Sunnyside_World_Assets/Elements/Crops/beetroot_05";
-            default:
-                return "";
-        }
+        return ResourcePaths.Crops.GetFullyGrownCrop(cropType.ToString());
     }
     
     public string GetCropTypeName()
@@ -81,11 +61,16 @@ public class CropController : MonoBehaviour
         return cropType.ToString();
     }
     
+    public CropType GetCropType()
+    {
+        return cropType;
+    }
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isCollected) return;
         
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(GameConstants.Tags.Player))
         {
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
@@ -95,12 +80,7 @@ public class CropController : MonoBehaviour
                 
                 string message = $"Crop harvested: {player.GetCropCount()}";
                 
-                if (worldSpaceUI != null)
-                {
-                    worldSpaceUI.ShowMessage(message);
-                }
-                
-                GameUIManager.Instance?.ShowMessage(message);
+                MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
                 Debug.Log(message);
                 
                 if (cropAnimator != null)

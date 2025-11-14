@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class WorldSpaceUI : MonoBehaviour
+public class WorldSpaceUI : MonoBehaviour, IMessageObserver
 {
     [Header("UI Settings")]
     [SerializeField] private Canvas worldCanvas;
@@ -23,12 +23,21 @@ public class WorldSpaceUI : MonoBehaviour
         }
     }
     
+    public void OnMessageReceived(string message)
+    {
+    }
+
+    public void ShowMessageDirect(string message)
+    {
+        ShowMessage(message);
+    }
+    
     private void CreateUIElements()
     {
         GameObject canvasObj = new GameObject("WorldSpaceCanvas");
         canvasObj.transform.SetParent(transform);
         canvasObj.transform.localPosition = offset;
-        canvasObj.transform.localScale = Vector3.one * 0.002f;
+        canvasObj.transform.localScale = Vector3.one * GameConstants.UI.WorldCanvasScale;
         
         worldCanvas = canvasObj.AddComponent<Canvas>();
         worldCanvas.renderMode = RenderMode.WorldSpace;

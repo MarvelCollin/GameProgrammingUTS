@@ -28,19 +28,29 @@ public class PlayerController : MonoBehaviour
     
     [Header("Collection")]
     [SerializeField] private int cropCount = 0;
+
+    public float MinX => minX;
+    public float MaxX => maxX;
+    public float MinY => minY;
+    public float MaxY => maxY;
     
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider;
     private Vector2 moveInput;
     private PlayerAnimator playerAnimator;
-    private bool isHurt = false;
-    private float hurtTimer = 0f;
+    private IPlayerState currentState;
+    private PlayerNormalState normalState;
+    private PlayerHurtState hurtState;
     
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
         playerAnimator = GetComponent<PlayerAnimator>();
+        
+        normalState = new PlayerNormalState(this, rb, playerAnimator, moveSpeed);
+        hurtState = new PlayerHurtState(rb, playerAnimator, hurtAnimationDuration);
+        currentState = normalState;
         
         SetupCollider();
     }
@@ -79,36 +89,24 @@ public class PlayerController : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+        currentState.UpdateMovement(moveInput);
+    }
+
+    private void ChangeState(IPlayerState newState)
+    {
+        currentState.Exit();
+        currentState = newState;
+        currentState.Enter();
     }
     
     private void FixedUpdate()
     {
-        if (isHurt)
+        if (currentState == hurtState && hurtState.IsComplete())
         {
-            hurtTimer -= Time.fixedDeltaTime;
-            if (hurtTimer <= 0f)
-            {
-                isHurt = false;
-                if (playerAnimator != null)
-                {
-                    playerAnimator.StopHurt();
-                }
-            }
-            return;
+            ChangeState(normalState);
         }
         
-        Vector2 velocity = moveInput * moveSpeed;
-        rb.linearVelocity = velocity;
-        
-        Vector3 clampedPosition = transform.position;
-        clampedPosition.x = Mathf.Clamp(clampedPosition.x, minX, maxX);
-        clampedPosition.y = Mathf.Clamp(clampedPosition.y, minY, maxY);
-        transform.position = clampedPosition;
-        
-        if (playerAnimator != null)
-        {
-            playerAnimator.UpdateMovement(moveInput);
-        }
+        currentState.FixedUpdate();
     }
     
     private void CreateVisualBorder()
@@ -139,15 +137,8 @@ public class PlayerController : MonoBehaviour
     
     public void TakeDamage(Vector2 recoilDirection, float recoilForce)
     {
-        isHurt = true;
-        hurtTimer = hurtAnimationDuration;
-        
-        rb.linearVelocity = recoilDirection * recoilForce;
-        
-        if (playerAnimator != null)
-        {
-            playerAnimator.PlayHurt();
-        }
+        ChangeState(hurtState);
+        hurtState.ApplyKnockback(recoilDirection, recoilForce);
     }
     
     public void CollectCrop()

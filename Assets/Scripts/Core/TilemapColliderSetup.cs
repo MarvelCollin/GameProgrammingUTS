@@ -17,7 +17,7 @@ public class TilemapColliderSetup : MonoBehaviour
     [ContextMenu("Setup Tilemap Colliders")]
     public void SetupColliders()
     {
-        GameObject layer2 = GameObject.Find("Layer2");
+        GameObject layer2 = GameObject.Find(GameConstants.Layers.Layer2);
         
         if (layer2 != null)
         {
@@ -36,7 +36,7 @@ public class TilemapColliderSetup : MonoBehaviour
                 rb.gravityScale = 0f;
             }
             
-            layer2.layer = LayerMask.NameToLayer("Environment");
+            layer2.layer = LayerMask.NameToLayer(GameConstants.Tags.Environment);
         }
     }
 }

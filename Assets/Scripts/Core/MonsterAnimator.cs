@@ -26,19 +26,14 @@ public class MonsterAnimator : MonoBehaviour
     {
         isAttacking = true;
         
-        Sprite[] attackSprites = Resources.LoadAll<Sprite>("Sunnyside_World_Assets/Characters/Goblin/PNG/spr_attack_strip10");
+        Sprite[] attackSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Goblin.Attack);
         
         if (attackSprites != null && attackSprites.Length > 0)
         {
-            float frameDelay = 0.05f;
+            IAnimationStrategy attackStrategy = new OnceAnimationStrategy(attackSprites, GameConstants.Animation.FastFrameDelay);
+            yield return StartCoroutine(attackStrategy.Play(spriteRenderer));
             
-            foreach (Sprite sprite in attackSprites)
-            {
-                spriteRenderer.sprite = sprite;
-                yield return new WaitForSeconds(frameDelay);
-            }
-            
-            Sprite[] idleSprites = Resources.LoadAll<Sprite>("Sunnyside_World_Assets/Characters/Goblin/PNG/spr_idle_strip9");
+            Sprite[] idleSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Goblin.Idle);
             if (idleSprites != null && idleSprites.Length > 0)
             {
                 spriteRenderer.sprite = idleSprites[0];
@@ -58,18 +53,14 @@ public class MonsterAnimator : MonoBehaviour
     
     private IEnumerator IdleLoop()
     {
-        Sprite[] idleSprites = Resources.LoadAll<Sprite>("Sunnyside_World_Assets/Characters/Goblin/PNG/spr_idle_strip9");
+        Sprite[] idleSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Goblin.Idle);
         
         if (idleSprites != null && idleSprites.Length > 0)
         {
-            float frameDelay = 0.1f;
-            int currentFrame = 0;
-            
             while (!isAttacking)
             {
-                spriteRenderer.sprite = idleSprites[currentFrame];
-                currentFrame = (currentFrame + 1) % idleSprites.Length;
-                yield return new WaitForSeconds(frameDelay);
+                IAnimationStrategy idleStrategy = new LoopAnimationStrategy(idleSprites, GameConstants.Animation.DefaultFrameDelay);
+                yield return StartCoroutine(idleStrategy.Play(spriteRenderer));
             }
         }
     }

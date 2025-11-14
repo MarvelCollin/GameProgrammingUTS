@@ -36,9 +36,9 @@ public class MonsterController : MonoBehaviour
         }
         
         triggerCollider.isTrigger = true;
-        triggerCollider.radius = 0.5f;
+        triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius;
         
-        transform.localScale = new Vector3(5f, 5f, 1f);
+        transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
         
         LoadSprite();
     }
@@ -55,7 +55,7 @@ public class MonsterController : MonoBehaviour
     {
         if (spriteRenderer.sprite == null)
         {
-            Sprite[] sprites = Resources.LoadAll<Sprite>("Sunnyside_World_Assets/Characters/Goblin/PNG/spr_idle_strip9");
+            Sprite[] sprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Goblin.Idle);
             if (sprites != null && sprites.Length > 0)
             {
                 spriteRenderer.sprite = sprites[0];
@@ -65,7 +65,7 @@ public class MonsterController : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(GameConstants.Tags.Player))
         {
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
@@ -79,13 +79,7 @@ public class MonsterController : MonoBehaviour
                 }
                 
                 string message = "Player is hurt";
-                
-                if (worldSpaceUI != null)
-                {
-                    worldSpaceUI.ShowMessage(message);
-                }
-                
-                GameUIManager.Instance?.ShowMessage(message);
+                MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
                 Debug.Log(message);
             }
         }

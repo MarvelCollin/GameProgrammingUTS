@@ -34,9 +34,9 @@ public class AnimalController : MonoBehaviour
         }
         
         triggerCollider.isTrigger = true;
-        triggerCollider.radius = 0.5f;
+        triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius;
         
-        transform.localScale = new Vector3(5f, 5f, 1f);
+        transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
         
         SetAnimalSound();
         LoadSprite();
@@ -46,14 +46,10 @@ public class AnimalController : MonoBehaviour
     {
         if (spriteRenderer.sprite == null)
         {
-            string spritePath = GetAnimalSpritePath();
-            if (!string.IsNullOrEmpty(spritePath))
+            Sprite[] sprites = SpriteFactory.GetAnimalSprites(animalType);
+            if (sprites != null && sprites.Length > 0)
             {
-                Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
-                if (sprites != null && sprites.Length > 0)
-                {
-                    spriteRenderer.sprite = sprites[0];
-                }
+                spriteRenderer.sprite = sprites[0];
             }
         }
     }
@@ -104,9 +100,14 @@ public class AnimalController : MonoBehaviour
         }
     }
     
+    public AnimalType GetAnimalType()
+    {
+        return animalType;
+    }
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(GameConstants.Tags.Player))
         {
             if (Time.time - lastSoundTime >= soundCooldown)
             {
@@ -117,12 +118,7 @@ public class AnimalController : MonoBehaviour
                     animalAnimator.PlayInteractionAnimation();
                 }
                 
-                if (worldSpaceUI != null)
-                {
-                    worldSpaceUI.ShowMessage(animalSound);
-                }
-                
-                GameUIManager.Instance?.ShowMessage(animalSound);
+                MessageBroadcaster.Instance.SendMessageToObject(gameObject, animalSound);
                 Debug.Log(animalSound);
             }
         }

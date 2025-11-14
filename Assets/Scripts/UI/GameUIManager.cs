@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class GameUIManager : MonoBehaviour
+public class GameUIManager : MonoBehaviour, IMessageObserver
 {
     public static GameUIManager Instance { get; private set; }
     
@@ -35,6 +35,21 @@ public class GameUIManager : MonoBehaviour
             }
             canvasGroup.alpha = 0f;
         }
+        
+        MessageBroadcaster.Instance.Subscribe(this);
+    }
+    
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            MessageBroadcaster.Instance.Unsubscribe(this);
+        }
+    }
+
+    public void OnMessageReceived(string message)
+    {
+        ShowMessage(message);
     }
     
     public void ShowMessage(string message)

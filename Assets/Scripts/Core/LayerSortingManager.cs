@@ -17,8 +17,8 @@ public class LayerSortingManager : MonoBehaviour
     [ContextMenu("Setup Layer Sorting")]
     public void SetupLayerSorting()
     {
-        GameObject layer1 = GameObject.Find("Layer1");
-        GameObject layer2 = GameObject.Find("Layer2");
+        GameObject layer1 = GameObject.Find(GameConstants.Layers.Layer1);
+        GameObject layer2 = GameObject.Find(GameConstants.Layers.Layer2);
         
         if (layer1 != null)
         {

@@ -19,7 +19,7 @@ public class PlayerAnimator : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         lastMoveDirection = Vector2.down;
         
-        spriteRenderer.sortingOrder = 10;
+        spriteRenderer.sortingOrder = GameConstants.Physics.PlayerSortingOrder;
     }
     
     public void UpdateMovement(Vector2 moveInput)
@@ -68,17 +68,12 @@ public class PlayerAnimator : MonoBehaviour
     {
         isHurt = true;
         
-        Sprite[] hurtSprites = Resources.LoadAll<Sprite>("Sunnyside_World_Assets/Characters/Human/HURT/base_hurt_strip8");
+        Sprite[] hurtSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.Hurt);
         
         if (hurtSprites != null && hurtSprites.Length > 0)
         {
-            float frameDelay = 0.0625f;
-            
-            foreach (Sprite sprite in hurtSprites)
-            {
-                spriteRenderer.sprite = sprite;
-                yield return new WaitForSeconds(frameDelay);
-            }
+            IAnimationStrategy hurtStrategy = new OnceAnimationStrategy(hurtSprites, 0.0625f);
+            yield return StartCoroutine(hurtStrategy.Play(spriteRenderer));
         }
         
         isHurt = false;

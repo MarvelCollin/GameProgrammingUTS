@@ -47,24 +47,24 @@ public class NPCAnimator : MonoBehaviour
         if (spriteRenderer.sprite != null)
         {
             string currentSpriteName = spriteRenderer.sprite.name;
-            string spritePath = "";
+            string spritePath = string.Empty;
             
             if (currentSpriteName.Contains("base_idle"))
             {
-                spritePath = "Sunnyside_World_Assets/Characters/Human/IDLE/base_idle_strip9";
+                spritePath = ResourcePaths.Characters.Human.Idle;
             }
             else if (currentSpriteName.Contains("spr_idle"))
             {
-                spritePath = "Sunnyside_World_Assets/Characters/Goblin/PNG/spr_idle_strip9";
+                spritePath = ResourcePaths.Characters.Goblin.Idle;
             }
             else if (currentSpriteName.Contains("skeleton_idle"))
             {
-                spritePath = "Sunnyside_World_Assets/Characters/Skeleton/PNG/skeleton_idle_strip6";
+                spritePath = ResourcePaths.Characters.Skeleton.Idle;
             }
             
             if (!string.IsNullOrEmpty(spritePath))
             {
-                idleSprites = Resources.LoadAll<Sprite>(spritePath);
+                idleSprites = SpriteFactory.LoadSpriteStrip(spritePath);
             }
         }
     }
