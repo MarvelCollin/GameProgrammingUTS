@@ -12,28 +12,13 @@ public class PlayerAnimator : MonoBehaviour
     
     private void Awake()
     {
-        Debug.Log("[PlayerAnimator] Awake - Initializing animator");
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         lastMoveDirection = Vector2.down;
         
-        if (animator == null)
-        {
-            Debug.LogError("[PlayerAnimator] Animator component not found!");
-        }
-        else
-        {
-            Debug.Log($"[PlayerAnimator] Animator found. Controller: {animator.runtimeAnimatorController?.name}");
-        }
+        spriteRenderer.sortingOrder = 10;
         
-        if (spriteRenderer == null)
-        {
-            Debug.LogError("[PlayerAnimator] SpriteRenderer component not found!");
-        }
-        else
-        {
-            Debug.Log($"[PlayerAnimator] SpriteRenderer found. Current sprite: {spriteRenderer.sprite?.name}");
-        }
+        Debug.Log($"[PlayerAnimator] Sorting order set to: {spriteRenderer.sortingOrder}");
     }
     
     public void UpdateMovement(Vector2 moveInput)
@@ -53,11 +38,6 @@ public class PlayerAnimator : MonoBehaviour
             {
                 spriteRenderer.flipX = false;
             }
-        }
-        
-        if (wasMoving != isMoving)
-        {
-            Debug.Log($"[PlayerAnimator] Movement state changed: {(isMoving ? "Moving" : "Idle")}");
         }
         
         UpdateAnimationState();
