@@ -12,10 +12,10 @@ public class CameraFollow : MonoBehaviour
     
     [Header("Camera Boundaries")]
     [SerializeField] private bool useBoundaries = true;
-    [SerializeField] private float minX = -50f;
-    [SerializeField] private float maxX = 50f;
-    [SerializeField] private float minY = -50f;
-    [SerializeField] private float maxY = 50f;
+    [SerializeField] private float minX = -8.5f;
+    [SerializeField] private float maxX = 8.5f;
+    [SerializeField] private float minY = -5f;
+    [SerializeField] private float maxY = 5f;
     
     private Camera cam;
     private float cameraHalfWidth;
@@ -124,10 +124,10 @@ public class CameraFollow : MonoBehaviour
     [ContextMenu("Reset Boundaries to Large (50x50)")]
     private void ResetBoundariesToLarge()
     {
-        minX = -50f;
-        maxX = 50f;
-        minY = -50f;
-        maxY = 50f;
+        minX = -8.5f;
+        maxX = 8.5f;
+        minY = -5f;
+        maxY = 5f;
     }
     
     [ContextMenu("Disable Boundaries")]

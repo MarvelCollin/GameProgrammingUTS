@@ -9,10 +9,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     
     [Header("World Boundaries")]
-    [SerializeField] private float minX = -20f;
-    [SerializeField] private float maxX = 20f;
-    [SerializeField] private float minY = -20f;
-    [SerializeField] private float maxY = 20f;
+    [SerializeField] private float minX = -8.5f;
+    [SerializeField] private float maxX = 8.5f;
+    [SerializeField] private float minY = -5f;
+    [SerializeField] private float maxY = 5f;
     
     [Header("Collision Settings")]
     [SerializeField] private Vector2 colliderSize = new Vector2(0.2f, 0.2f);
@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
         playerAnimator = GetComponent<PlayerAnimator>();
         
         normalState = new PlayerNormalState(this, rb, playerAnimator, moveSpeed);
-        hurtState = new PlayerHurtState(rb, playerAnimator, hurtAnimationDuration);
+        hurtState = new PlayerHurtState(this, rb, playerAnimator, hurtAnimationDuration);
         currentState = normalState;
         
         SetupCollider();
@@ -149,6 +149,14 @@ public class PlayerController : MonoBehaviour
     public int GetCropCount()
     {
         return cropCount;
+    }
+
+    public void SetBoundaries(float minXBound, float maxXBound, float minYBound, float maxYBound)
+    {
+        minX = minXBound;
+        maxX = maxXBound;
+        minY = minYBound;
+        maxY = maxYBound;
     }
 
 }
