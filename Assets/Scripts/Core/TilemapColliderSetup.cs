@@ -6,9 +6,6 @@ public class TilemapColliderSetup : MonoBehaviour
     [Header("Setup Settings")]
     [SerializeField] private bool autoSetupOnStart = true;
     
-    [Header("Debug")]
-    [SerializeField] private bool showDebugLogs = true;
-    
     private void Start()
     {
         if (autoSetupOnStart)
@@ -29,10 +26,6 @@ public class TilemapColliderSetup : MonoBehaviour
             if (collider == null)
             {
                 collider = layer2.AddComponent<TilemapCollider2D>();
-                if (showDebugLogs)
-                {
-                    Debug.Log("[TilemapCollider] Added TilemapCollider2D to Layer2");
-                }
             }
             
             Rigidbody2D rb = layer2.GetComponent<Rigidbody2D>();
@@ -41,24 +34,9 @@ public class TilemapColliderSetup : MonoBehaviour
                 rb = layer2.AddComponent<Rigidbody2D>();
                 rb.bodyType = RigidbodyType2D.Static;
                 rb.gravityScale = 0f;
-                
-                if (showDebugLogs)
-                {
-                    Debug.Log("[TilemapCollider] Added Static Rigidbody2D to Layer2");
-                }
             }
             
             layer2.layer = LayerMask.NameToLayer("Environment");
-            
-            if (showDebugLogs)
-            {
-                Debug.Log("[TilemapCollider] Layer2 setup complete");
-                Debug.Log("[TilemapCollider] Layer2 will now have collision on each tile");
-            }
-        }
-        else if (showDebugLogs)
-        {
-            Debug.LogWarning("[TilemapCollider] Layer2 GameObject not found!");
         }
     }
 }

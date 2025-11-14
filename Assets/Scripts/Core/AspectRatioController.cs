@@ -21,9 +21,6 @@ public class AspectRatioController : MonoBehaviour
     private void Start()
     {
         float targetAspect = targetAspectWidth / targetAspectHeight;
-        Debug.Log($"[AspectRatioController] Target aspect ratio: {targetAspect:F2} ({targetAspectWidth}:{targetAspectHeight})");
-        Debug.Log($"[AspectRatioController] Current screen resolution: {Screen.width}x{Screen.height}");
-        Debug.Log($"[AspectRatioController] Current aspect ratio: {cam.aspect:F2}");
     }
     
     private void ApplyAspectRatio()
@@ -65,6 +62,5 @@ public class AspectRatioController : MonoBehaviour
         targetAspectWidth = width;
         targetAspectHeight = height;
         ApplyAspectRatio();
-        Debug.Log($"[AspectRatioController] Aspect ratio changed to {width}:{height}");
     }
 }

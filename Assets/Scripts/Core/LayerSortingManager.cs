@@ -6,9 +6,6 @@ public class LayerSortingManager : MonoBehaviour
     [Header("Layer Settings")]
     [SerializeField] private bool autoSetupOnStart = true;
     
-    [Header("Debug")]
-    [SerializeField] private bool showDebugLogs = true;
-    
     private void Start()
     {
         if (autoSetupOnStart)
@@ -29,21 +26,7 @@ public class LayerSortingManager : MonoBehaviour
             if (renderer1 != null)
             {
                 renderer1.sortingOrder = 0;
-                
-                if (showDebugLogs)
-                {
-                    Debug.Log($"[LayerSorting] Layer1 sorting order set to: 0");
-                    Debug.Log($"[LayerSorting] Layer1 sorting layer: {renderer1.sortingLayerName}");
-                }
             }
-            else if (showDebugLogs)
-            {
-                Debug.LogWarning($"[LayerSorting] Layer1 found but has no TilemapRenderer!");
-            }
-        }
-        else if (showDebugLogs)
-        {
-            Debug.LogWarning($"[LayerSorting] Layer1 GameObject not found!");
         }
         
         if (layer2 != null)
@@ -52,24 +35,7 @@ public class LayerSortingManager : MonoBehaviour
             if (renderer2 != null)
             {
                 renderer2.sortingOrder = 1;
-                
-                if (showDebugLogs)
-                {
-                    Debug.Log($"[LayerSorting] Layer2 sorting order set to: 1");
-                    Debug.Log($"[LayerSorting] Layer2 sorting layer: {renderer2.sortingLayerName}");
-                    Debug.Log($"========================================");
-                    Debug.Log($"[LayerSorting] Layer2 will now render ABOVE Layer1");
-                    Debug.Log($"========================================");
-                }
             }
-            else if (showDebugLogs)
-            {
-                Debug.LogWarning($"[LayerSorting] Layer2 found but has no TilemapRenderer!");
-            }
-        }
-        else if (showDebugLogs)
-        {
-            Debug.LogWarning($"[LayerSorting] Layer2 GameObject not found!");
         }
     }
 }

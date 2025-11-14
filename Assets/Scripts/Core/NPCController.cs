@@ -8,15 +8,13 @@ public class NPCController : MonoBehaviour
     [SerializeField] private string npcName = "NPC";
     [SerializeField] private NPCType npcType = NPCType.Human;
     [SerializeField] private bool canInteract = true;
-    [SerializeField] private float interactionRange = 2f;
+    [SerializeField] private float interactionRange = 0.2f;
     [SerializeField] private bool autoLoadSprite = true;
-    
-    [Header("Debug")]
-    [SerializeField] private bool showDebugLogs = true;
     
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private Transform player;
+    private WorldSpaceUI worldSpaceUI;
     
     private const string HUMAN_SPRITE_PATH = "Sunnyside_World_Assets/Characters/Human/IDLE/base_idle_strip9";
     private const string GOBLIN_SPRITE_PATH = "Sunnyside_World_Assets/Characters/Goblin/PNG/spr_idle_strip9";
@@ -26,42 +24,19 @@ public class NPCController : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        worldSpaceUI = GetComponent<WorldSpaceUI>();
+        
+        if (worldSpaceUI == null)
+        {
+            worldSpaceUI = gameObject.AddComponent<WorldSpaceUI>();
+            worldSpaceUI.SetOffset(new Vector3(0, -0.25f, 0));
+        }
         
         transform.localScale = new Vector3(5f, 5f, 1f);
         
         if (autoLoadSprite)
         {
             LoadSpriteBasedOnType();
-        }
-        
-        if (showDebugLogs)
-        {
-            Debug.Log($"========== NPC AWAKE: {npcName} ==========");
-            Debug.Log($"[NPCController] NPC Name: {npcName}");
-            Debug.Log($"[NPCController] NPC Type: {npcType}");
-            Debug.Log($"[NPCController] Can Interact: {canInteract}");
-            Debug.Log($"[NPCController] Interaction Range: {interactionRange}");
-            Debug.Log($"[NPCController] Auto Load Sprite: {autoLoadSprite}");
-            
-            if (spriteRenderer == null)
-            {
-                Debug.LogError($"[NPCController] {npcName} - SpriteRenderer not found!");
-            }
-            else
-            {
-                Debug.Log($"[NPCController] {npcName} - SpriteRenderer found. Sprite: {spriteRenderer.sprite?.name ?? "None"}");
-            }
-            
-            if (animator == null)
-            {
-                Debug.LogError($"[NPCController] {npcName} - Animator not found!");
-            }
-            else
-            {
-                Debug.Log($"[NPCController] {npcName} - Animator found. Controller: {animator.runtimeAnimatorController?.name ?? "None"}");
-            }
-            
-            Debug.Log($"==========================================");
         }
     }
     
@@ -71,23 +46,6 @@ public class NPCController : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
-            if (showDebugLogs)
-            {
-                Debug.Log($"[NPCController] {npcName} - Player found at: {player.position}");
-            }
-        }
-        else
-        {
-            if (showDebugLogs)
-            {
-                Debug.LogWarning($"[NPCController] {npcName} - Player not found! Interaction disabled.");
-            }
-        }
-        
-        if (showDebugLogs)
-        {
-            Debug.Log($"[NPCController] {npcName} - Positioned at: {transform.position}");
-            Debug.Log($"[NPCController] {npcName} - Ready for interactions: {canInteract && player != null}");
         }
     }
     
@@ -96,11 +54,6 @@ public class NPCController : MonoBehaviour
         if (canInteract && player != null)
         {
             float distance = Vector2.Distance(transform.position, player.position);
-            
-            if (showDebugLogs && distance <= interactionRange)
-            {
-                Debug.Log($"[NPCController] {npcName} - Player in range! Distance: {distance:F2} (Press E to interact)");
-            }
             
             if (distance <= interactionRange && Input.GetKeyDown(KeyCode.E))
             {
@@ -111,11 +64,19 @@ public class NPCController : MonoBehaviour
     
     private void Interact()
     {
-        Debug.Log($"========================================");
-        Debug.Log($"[NPCController] INTERACTION: {npcName}");
-        Debug.Log($"[NPCController] Type: {npcType}");
-        Debug.Log($"[NPCController] Position: {transform.position}");
-        Debug.Log($"========================================");
+        string interactionMessage = $"Talking with {npcName}";
+        
+        if (worldSpaceUI != null)
+        {
+            worldSpaceUI.ShowMessage(interactionMessage);
+        }
+        
+        if (GameUIManager.Instance != null)
+        {
+            GameUIManager.Instance.ShowMessage(interactionMessage);
+        }
+        
+        Debug.Log(interactionMessage);
     }
     
     private void LoadSpriteBasedOnType()
@@ -142,17 +103,6 @@ public class NPCController : MonoBehaviour
             if (sprites != null && sprites.Length > 0)
             {
                 spriteRenderer.sprite = sprites[0];
-                
-                if (showDebugLogs)
-                {
-                    Debug.Log($"[NPCController] {npcName} - Loaded sprite: {sprites[0].name} from {spritePath}");
-                    Debug.Log($"[NPCController] {npcName} - Total sprites available: {sprites.Length}");
-                }
-            }
-            else
-            {
-                Debug.LogError($"[NPCController] {npcName} - Failed to load sprites from: {spritePath}");
-                Debug.LogError($"[NPCController] Make sure sprites are in Resources folder or use addressables");
             }
         }
     }

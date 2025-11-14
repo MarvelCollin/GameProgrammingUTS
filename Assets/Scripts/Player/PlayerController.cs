@@ -23,10 +23,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Color borderColor = Color.red;
     [SerializeField] private float borderWidth = 0.05f;
     
+    [Header("Combat Settings")]
+    [SerializeField] private float hurtAnimationDuration = 0.5f;
+    
+    [Header("Collection")]
+    [SerializeField] private int cropCount = 0;
+    
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider;
     private Vector2 moveInput;
     private PlayerAnimator playerAnimator;
+    private bool isHurt = false;
+    private float hurtTimer = 0f;
     
     private void Awake()
     {
@@ -75,6 +83,20 @@ public class PlayerController : MonoBehaviour
     
     private void FixedUpdate()
     {
+        if (isHurt)
+        {
+            hurtTimer -= Time.fixedDeltaTime;
+            if (hurtTimer <= 0f)
+            {
+                isHurt = false;
+                if (playerAnimator != null)
+                {
+                    playerAnimator.StopHurt();
+                }
+            }
+            return;
+        }
+        
         Vector2 velocity = moveInput * moveSpeed;
         rb.linearVelocity = velocity;
         
@@ -115,5 +137,27 @@ public class PlayerController : MonoBehaviour
         lineRenderer.SetPosition(4, new Vector3(-halfWidth, -halfHeight, 0));
     }
     
+    public void TakeDamage(Vector2 recoilDirection, float recoilForce)
+    {
+        isHurt = true;
+        hurtTimer = hurtAnimationDuration;
+        
+        rb.linearVelocity = recoilDirection * recoilForce;
+        
+        if (playerAnimator != null)
+        {
+            playerAnimator.PlayHurt();
+        }
+    }
+    
+    public void CollectCrop()
+    {
+        cropCount++;
+    }
+    
+    public int GetCropCount()
+    {
+        return cropCount;
+    }
 
 }

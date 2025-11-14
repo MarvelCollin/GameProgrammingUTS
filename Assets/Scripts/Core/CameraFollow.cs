@@ -17,9 +17,6 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float minY = -50f;
     [SerializeField] private float maxY = 50f;
     
-    [Header("Debug Settings")]
-    [SerializeField] private bool enableDebugLogs = false;
-    
     private Camera cam;
     private float cameraHalfWidth;
     private float cameraHalfHeight;
@@ -50,8 +47,6 @@ public class CameraFollow : MonoBehaviour
             target = player.transform;
             return;
         }
-        
-        Debug.LogError("[CameraFollow] No Player found! Make sure Player GameObject exists in scene with 'Player' tag or name.");
     }
     
     private void Start()
@@ -78,9 +73,6 @@ public class CameraFollow : MonoBehaviour
             float minCameraY = minY + cameraHalfHeight;
             float maxCameraY = maxY - cameraHalfHeight;
             
-            bool xClamped = false;
-            bool yClamped = false;
-            
             if (minCameraX < maxCameraX)
             {
                 desiredPosition.x = Mathf.Clamp(desiredPosition.x, minCameraX, maxCameraX);
@@ -88,7 +80,6 @@ public class CameraFollow : MonoBehaviour
             else
             {
                 desiredPosition.x = (minX + maxX) / 2f;
-                xClamped = true;
             }
             
             if (minCameraY < maxCameraY)
@@ -98,12 +89,6 @@ public class CameraFollow : MonoBehaviour
             else
             {
                 desiredPosition.y = (minY + maxY) / 2f;
-                yClamped = true;
-            }
-            
-            if (enableDebugLogs && (xClamped || yClamped))
-            {
-                Debug.LogWarning($"[CameraFollow] Camera locked! Increase boundaries or disable them.");
             }
         }
         
@@ -121,10 +106,6 @@ public class CameraFollow : MonoBehaviour
     public void SetTarget(Transform newTarget)
     {
         target = newTarget;
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[CameraFollow] Target manually set to: {newTarget.name} at position: {newTarget.position}");
-        }
     }
     
     public void SetBoundaries(float minXBound, float maxXBound, float minYBound, float maxYBound)
@@ -133,26 +114,11 @@ public class CameraFollow : MonoBehaviour
         maxX = maxXBound;
         minY = minYBound;
         maxY = maxYBound;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[CameraFollow] Boundaries updated: X({minX} to {maxX}), Y({minY} to {maxY})");
-        }
     }
     
     public void SetSmoothSpeed(float speed)
     {
         smoothSpeed = speed;
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[CameraFollow] Smooth speed changed to: {smoothSpeed}");
-        }
-    }
-    
-    public void ToggleDebugLogs(bool enable)
-    {
-        enableDebugLogs = enable;
-        Debug.Log($"[CameraFollow] Debug logs {(enable ? "enabled" : "disabled")}");
     }
     
     [ContextMenu("Reset Boundaries to Large (50x50)")]
@@ -162,25 +128,26 @@ public class CameraFollow : MonoBehaviour
         maxX = 50f;
         minY = -50f;
         maxY = 50f;
-        Debug.Log("[CameraFollow] Boundaries reset to: X(-50 to 50), Y(-50 to 50)");
     }
     
     [ContextMenu("Disable Boundaries")]
     private void DisableBoundaries()
     {
         useBoundaries = false;
-        Debug.Log("[CameraFollow] Boundaries disabled - Camera will follow freely");
     }
     
     [ContextMenu("Enable Boundaries")]
     private void EnableBoundaries()
     {
         useBoundaries = true;
-        Debug.Log("[CameraFollow] Boundaries enabled");
     }
     
     private void OnValidate()
     {
+        if (cam != null)
+        {
+            CalculateCameraBounds();
+        }
     }
     
     private void OnDrawGizmosSelected()
