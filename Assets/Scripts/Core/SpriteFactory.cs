@@ -22,6 +22,11 @@ public static class SpriteFactory
         return sprites;
     }
 
+    public static Sprite[] GetSprites(string path)
+    {
+        return LoadSpriteStrip(path);
+    }
+
     public static Sprite GetCropSprite(CropType cropType)
     {
         string cropName = cropType.ToString();

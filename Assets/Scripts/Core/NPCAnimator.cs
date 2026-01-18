@@ -94,6 +94,12 @@ public class NPCAnimator : MonoBehaviour
             animator.Play(animationName);
         }
     }
+
+    public void PlayInteractionAnimation()
+    {
+        currentSpriteIndex = 0;
+        animationTimer = 0f;
+    }
 }
 
 public enum NPCDirection

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(CircleCollider2D))]
 public class NPCController : MonoBehaviour
 {
     [Header("NPC Settings")]
@@ -10,22 +10,52 @@ public class NPCController : MonoBehaviour
     [SerializeField] private bool canInteract = true;
     [SerializeField] private float interactionRange = 0.2f;
     [SerializeField] private bool autoLoadSprite = true;
+    [SerializeField] private bool isFriendlyNPC = true;
     
     private SpriteRenderer spriteRenderer;
-    private Animator animator;
+    private NPCAnimator npcAnimator;
     private Transform player;
     private WorldSpaceUI worldSpaceUI;
+    private CircleCollider2D triggerCollider;
+
+    private float roamRadius = 1.5f;
+    private float roamSpeed = 0.5f;
+    private Vector3 spawnPosition;
+    private Vector3 targetPosition;
+    private float roamTimer;
+    private float roamInterval = 3f;
+
+    private float emoteDuration = 2f;
+    private float emoteTimer;
+    private bool showingEmote;
+
+    private bool isBeingAttacked;
+    private float attackCooldown = 0.5f;
+    private float attackTimer;
     
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
+        npcAnimator = GetComponent<NPCAnimator>();
         worldSpaceUI = GetComponent<WorldSpaceUI>();
+        triggerCollider = GetComponent<CircleCollider2D>();
+
+        if (triggerCollider == null)
+        {
+            triggerCollider = gameObject.AddComponent<CircleCollider2D>();
+        }
+        triggerCollider.isTrigger = true;
+        triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius / GameConstants.Physics.DefaultScale;
         
         if (worldSpaceUI == null)
         {
             worldSpaceUI = gameObject.AddComponent<WorldSpaceUI>();
-            worldSpaceUI.SetOffset(new Vector3(0, -0.25f, 0));
+            worldSpaceUI.SetOffset(new Vector3(0, 0.5f, 0));
+        }
+
+        if (npcAnimator == null)
+        {
+            npcAnimator = gameObject.AddComponent<NPCAnimator>();
         }
         
         transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
@@ -34,6 +64,10 @@ public class NPCController : MonoBehaviour
         {
             LoadSpriteBasedOnType();
         }
+
+        spawnPosition = transform.position;
+        targetPosition = spawnPosition;
+        roamTimer = Random.Range(0f, roamInterval);
     }
     
     private void Start()
@@ -43,11 +77,22 @@ public class NPCController : MonoBehaviour
         {
             player = playerObj.transform;
         }
+
+        if (npcType == NPCType.Goblin)
+        {
+            isFriendlyNPC = true;
+        }
     }
     
     private void Update()
     {
-        if (canInteract && player != null)
+        if (isFriendlyNPC)
+        {
+            HandleEmoteTimer();
+            HandleAttackCooldown();
+            CheckForNearbyAttack();
+        }
+        else if (canInteract && player != null)
         {
             float distance = Vector2.Distance(transform.position, player.position);
             
@@ -57,12 +102,66 @@ public class NPCController : MonoBehaviour
             }
         }
     }
+
+    private void CheckForNearbyAttack()
+    {
+        if (isBeingAttacked || player == null) return;
+
+        PlayerController playerController = player.GetComponent<PlayerController>();
+        if (playerController == null) return;
+
+        float distance = Vector2.Distance(transform.position, player.position);
+        float attackRange = 1.0f;
+
+        if (distance <= attackRange && playerController.IsAttacking())
+        {
+            isBeingAttacked = true;
+            attackTimer = attackCooldown;
+            ShowEmote("</3");
+
+            if (npcAnimator != null)
+            {
+                npcAnimator.PlayInteractionAnimation();
+            }
+        }
+    }
+
+    private void HandleEmoteTimer()
+    {
+        if (showingEmote)
+        {
+            emoteTimer -= Time.deltaTime;
+            if (emoteTimer <= 0)
+            {
+                showingEmote = false;
+            }
+        }
+    }
+
+    private void HandleAttackCooldown()
+    {
+        if (isBeingAttacked)
+        {
+            attackTimer -= Time.deltaTime;
+            if (attackTimer <= 0)
+            {
+                isBeingAttacked = false;
+            }
+        }
+    }
+
+    private void ShowEmote(string emote)
+    {
+        showingEmote = true;
+        emoteTimer = emoteDuration;
+        
+        MessageBroadcaster.Instance.SendMessageToObject(gameObject, emote);
+    }
     
     private void Interact()
     {
         string interactionMessage = $"Talking with {npcName}";
         MessageBroadcaster.Instance.SendMessageToObject(gameObject, interactionMessage);
-        Debug.Log(interactionMessage);
     }
     
     private void LoadSpriteBasedOnType()
@@ -83,6 +182,55 @@ public class NPCController : MonoBehaviour
     public string GetNPCName()
     {
         return npcName;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!isFriendlyNPC) return;
+
+        if (other.CompareTag(GameConstants.Tags.Player))
+        {
+            PlayerController playerController = other.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                if (playerController.IsAttacking() && !isBeingAttacked)
+                {
+                    isBeingAttacked = true;
+                    attackTimer = attackCooldown;
+                    ShowEmote("</3");
+
+                    if (npcAnimator != null)
+                    {
+                        npcAnimator.PlayInteractionAnimation();
+                    }
+                }
+                else if (!playerController.IsAttacking() && !showingEmote)
+                {
+                    ShowEmote("<3");
+
+                    if (npcAnimator != null)
+                    {
+                        npcAnimator.PlayInteractionAnimation();
+                    }
+                }
+            }
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (!isFriendlyNPC) return;
+
+        if (other.CompareTag(GameConstants.Tags.Player))
+        {
+            PlayerController playerController = other.GetComponent<PlayerController>();
+            if (playerController != null && playerController.IsAttacking() && !isBeingAttacked)
+            {
+                isBeingAttacked = true;
+                attackTimer = attackCooldown;
+                ShowEmote("</3");
+            }
+        }
     }
     
     private void OnDrawGizmosSelected()

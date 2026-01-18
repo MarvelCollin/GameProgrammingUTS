@@ -1,25 +1,28 @@
 fileFormatVersion: 2
-guid: 7706e55007b5a944eabfab4561287af6
+guid: 97574a8ddc299834c96173a59727c095
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6677806975911841103
-    second: skeleton_idle_strip6_0
+      213: 6806788974132292358
+    second: skeleton_hurt_strip7_0
   - first:
-      213: -2398702121313481594
-    second: skeleton_idle_strip6_1
+      213: -8339182142462149122
+    second: skeleton_hurt_strip7_1
   - first:
-      213: 8771665013117496736
-    second: skeleton_idle_strip6_2
+      213: 3332912203173697833
+    second: skeleton_hurt_strip7_2
   - first:
-      213: 8931733440314086895
-    second: skeleton_idle_strip6_3
+      213: -4318891244014049239
+    second: skeleton_hurt_strip7_3
   - first:
-      213: 4959156931009317258
-    second: skeleton_idle_strip6_4
+      213: 4205447710834506198
+    second: skeleton_hurt_strip7_4
   - first:
-      213: -6635958139948888635
-    second: skeleton_idle_strip6_5
+      213: 345706151552991724
+    second: skeleton_hurt_strip7_5
+  - first:
+      213: -7568306700810256236
+    second: skeleton_hurt_strip7_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,7 +118,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: skeleton_idle_strip6_0
+      name: skeleton_hurt_strip7_0
       rect:
         serializedVersion: 2
         x: 41
@@ -130,17 +133,83 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f4dc9d560165cac50800000000000000
-      internalID: 6677806975911841103
+      spriteID: 60b63301282967e50800000000000000
+      internalID: 6806788974132292358
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: skeleton_idle_strip6_1
+      name: skeleton_hurt_strip7_1
       rect:
         serializedVersion: 2
-        x: 136
+        x: 132
+        y: 23
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efd33493606454c80800000000000000
+      internalID: -8339182142462149122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeleton_hurt_strip7_2
+      rect:
+        serializedVersion: 2
+        x: 228
+        y: 23
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9299bb18df1e04e20800000000000000
+      internalID: 3332912203173697833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeleton_hurt_strip7_3
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 23
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9286ff8cb473014c0800000000000000
+      internalID: -4318891244014049239
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeleton_hurt_strip7_4
+      rect:
+        serializedVersion: 2
+        x: 423
         y: 23
         width: 17
         height: 18
@@ -152,19 +221,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 68c4229212916bed0800000000000000
-      internalID: -2398702121313481594
+      spriteID: 6d935cd5960cc5a30800000000000000
+      internalID: 4205447710834506198
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: skeleton_idle_strip6_2
+      name: skeleton_hurt_strip7_5
       rect:
         serializedVersion: 2
-        x: 232
+        x: 522
         y: 23
-        width: 17
+        width: 14
         height: 18
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -174,61 +243,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0ad279bead63bb970800000000000000
-      internalID: 8771665013117496736
+      spriteID: ce1cbf7c9e13cc400800000000000000
+      internalID: 345706151552991724
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: skeleton_idle_strip6_3
+      name: skeleton_hurt_strip7_6
       rect:
         serializedVersion: 2
-        x: 328
-        y: 23
-        width: 17
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fe5166add34e3fb70800000000000000
-      internalID: 8931733440314086895
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: skeleton_idle_strip6_4
-      rect:
-        serializedVersion: 2
-        x: 424
-        y: 23
-        width: 17
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a890a3a34f672d440800000000000000
-      internalID: 4959156931009317258
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: skeleton_idle_strip6_5
-      rect:
-        serializedVersion: 2
-        x: 521
+        x: 617
         y: 23
         width: 15
         height: 18
@@ -240,8 +265,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5cd0cf30b3758e3a0800000000000000
-      internalID: -6635958139948888635
+      spriteID: 4900ffa7729f7f690800000000000000
+      internalID: -7568306700810256236
       vertices: []
       indices: 
       edges: []
@@ -260,12 +285,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      skeleton_idle_strip6_0: 6677806975911841103
-      skeleton_idle_strip6_1: -2398702121313481594
-      skeleton_idle_strip6_2: 8771665013117496736
-      skeleton_idle_strip6_3: 8931733440314086895
-      skeleton_idle_strip6_4: 4959156931009317258
-      skeleton_idle_strip6_5: -6635958139948888635
+      skeleton_hurt_strip7_0: 6806788974132292358
+      skeleton_hurt_strip7_1: -8339182142462149122
+      skeleton_hurt_strip7_2: 3332912203173697833
+      skeleton_hurt_strip7_3: -4318891244014049239
+      skeleton_hurt_strip7_4: 4205447710834506198
+      skeleton_hurt_strip7_5: 345706151552991724
+      skeleton_hurt_strip7_6: -7568306700810256236
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

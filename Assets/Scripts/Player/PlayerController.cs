@@ -172,6 +172,12 @@ public class PlayerController : MonoBehaviour
         ChangeState(hurtState);
         hurtState.ApplyKnockback(recoilDirection, recoilForce);
     }
+
+    public void TakeDamage(Vector2 recoilWithForce)
+    {
+        ChangeState(hurtState);
+        hurtState.ApplyKnockback(recoilWithForce.normalized, recoilWithForce.magnitude);
+    }
     
     public void CollectCrop()
     {
@@ -189,6 +195,16 @@ public class PlayerController : MonoBehaviour
         maxX = maxXBound;
         minY = minYBound;
         maxY = maxYBound;
+    }
+
+    public bool IsAttacking()
+    {
+        return currentState == attackState;
+    }
+
+    public bool IsDigging()
+    {
+        return currentState == digState;
     }
 
 }

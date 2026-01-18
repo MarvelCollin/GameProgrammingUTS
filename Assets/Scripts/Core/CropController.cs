@@ -11,7 +11,14 @@ public class CropController : MonoBehaviour
     private WorldSpaceUI worldSpaceUI;
     private CircleCollider2D triggerCollider;
     private bool isCollected = false;
+    private bool isPlanted = true;
     private CropAnimator cropAnimator;
+
+    private float respawnTime = 10f;
+    private float respawnTimer;
+    private Vector3 spawnPosition;
+    private Color normalColor;
+    private Color plantedColor = new Color(0.6f, 0.6f, 0.6f, 0.8f);
     
     private void Awake()
     {
@@ -23,7 +30,7 @@ public class CropController : MonoBehaviour
         if (worldSpaceUI == null)
         {
             worldSpaceUI = gameObject.AddComponent<WorldSpaceUI>();
-            worldSpaceUI.SetOffset(new Vector3(0, -0.4f, 0));
+            worldSpaceUI.SetOffset(new Vector3(0, 0.5f, 0));
         }
         
         if (cropAnimator == null)
@@ -32,11 +39,15 @@ public class CropController : MonoBehaviour
         }
         
         triggerCollider.isTrigger = true;
-        triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius;
+        triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius / GameConstants.Physics.DefaultScale;
         
         transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
         
         LoadSprite();
+
+        spawnPosition = transform.position;
+        normalColor = spriteRenderer.color;
+        SetPlantedVisual();
     }
     
     private void LoadSprite()
@@ -48,6 +59,45 @@ public class CropController : MonoBehaviour
             {
                 spriteRenderer.sprite = sprite;
             }
+        }
+    }
+
+    private void Update()
+    {
+        if (isCollected)
+        {
+            HandleRespawn();
+        }
+    }
+
+    private void HandleRespawn()
+    {
+        respawnTimer -= Time.deltaTime;
+        if (respawnTimer <= 0)
+        {
+            Respawn();
+        }
+    }
+
+    private void Respawn()
+    {
+        transform.position = spawnPosition;
+        isCollected = false;
+        isPlanted = true;
+        triggerCollider.enabled = true;
+        spriteRenderer.enabled = true;
+        SetPlantedVisual();
+    }
+
+    private void SetPlantedVisual()
+    {
+        if (isPlanted)
+        {
+            spriteRenderer.color = plantedColor;
+        }
+        else
+        {
+            spriteRenderer.color = normalColor;
         }
     }
     
@@ -65,6 +115,21 @@ public class CropController : MonoBehaviour
     {
         return cropType;
     }
+
+    public void DigUp()
+    {
+        if (!isPlanted || isCollected) return;
+
+        isPlanted = false;
+        spriteRenderer.color = normalColor;
+        
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("dig");
+        }
+        
+        MessageBroadcaster.Instance.SendMessageToObject(gameObject, "Ready to harvest!");
+    }
     
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -75,26 +140,60 @@ public class CropController : MonoBehaviour
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                isCollected = true;
-                player.CollectCrop();
-                
-                if (AudioManager.Instance != null)
+                if (player.IsDigging() && isPlanted)
                 {
-                    AudioManager.Instance.PlayHarvestSound();
+                    DigUp();
+                    return;
                 }
-                
-                string message = $"Crop harvested: {player.GetCropCount()}";
-                
-                MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
-                
-                if (cropAnimator != null)
+
+                if (!isPlanted)
                 {
-                    cropAnimator.PlayHarvestAnimation();
+                    CollectCrop(player);
                 }
-                
-                Destroy(gameObject, 0.5f);
+                else
+                {
+                    MessageBroadcaster.Instance.SendMessageToObject(gameObject, "Use dig to harvest!");
+                }
             }
         }
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (isCollected) return;
+        
+        if (other.CompareTag(GameConstants.Tags.Player))
+        {
+            PlayerController player = other.GetComponent<PlayerController>();
+            if (player != null && player.IsDigging() && isPlanted)
+            {
+                DigUp();
+            }
+        }
+    }
+
+    private void CollectCrop(PlayerController player)
+    {
+        isCollected = true;
+        player.CollectCrop();
+        
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayHarvestSound();
+        }
+        
+        string message = $"Crop harvested: {player.GetCropCount()}";
+        
+        MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
+        
+        if (cropAnimator != null)
+        {
+            cropAnimator.PlayHarvestAnimation();
+        }
+
+        triggerCollider.enabled = false;
+        spriteRenderer.enabled = false;
+        respawnTimer = respawnTime;
     }
 }
 

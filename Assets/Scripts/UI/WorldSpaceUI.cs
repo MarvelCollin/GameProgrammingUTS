@@ -8,7 +8,7 @@ public class WorldSpaceUI : MonoBehaviour, IMessageObserver
     [SerializeField] private Canvas worldCanvas;
     [SerializeField] private Text messageText;
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private Vector3 offset = new Vector3(0, 1.5f, 0);
+    [SerializeField] private Vector3 offset = new Vector3(0, 0.3f, 0);
     [SerializeField] private float displayDuration = 2f;
     [SerializeField] private float fadeSpeed = 2f;
     
@@ -36,8 +36,8 @@ public class WorldSpaceUI : MonoBehaviour, IMessageObserver
     {
         GameObject canvasObj = new GameObject("WorldSpaceCanvas");
         canvasObj.transform.SetParent(transform);
-        canvasObj.transform.localPosition = offset;
-        canvasObj.transform.localScale = Vector3.one * GameConstants.UI.WorldCanvasScale;
+        canvasObj.transform.localPosition = offset / transform.localScale.x;
+        canvasObj.transform.localScale = Vector3.one * GameConstants.UI.WorldCanvasScale / transform.localScale.x;
         
         worldCanvas = canvasObj.AddComponent<Canvas>();
         worldCanvas.renderMode = RenderMode.WorldSpace;
@@ -55,7 +55,7 @@ public class WorldSpaceUI : MonoBehaviour, IMessageObserver
         
         messageText = textObj.AddComponent<Text>();
         messageText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        messageText.fontSize = 24;
+        messageText.fontSize = 48;
         messageText.alignment = TextAnchor.MiddleCenter;
         messageText.color = Color.white;
         messageText.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -77,6 +77,19 @@ public class WorldSpaceUI : MonoBehaviour, IMessageObserver
         if (messageText != null)
         {
             messageText.text = message;
+            
+            if (message == "<3")
+            {
+                messageText.color = Color.red;
+            }
+            else if (message == "</3")
+            {
+                messageText.color = new Color(0.5f, 0f, 0.5f);
+            }
+            else
+            {
+                messageText.color = Color.white;
+            }
             
             if (fadeCoroutine != null)
             {
@@ -109,7 +122,9 @@ public class WorldSpaceUI : MonoBehaviour, IMessageObserver
         offset = newOffset;
         if (worldCanvas != null)
         {
-            worldCanvas.transform.localPosition = offset;
+            float parentScale = transform.localScale.x;
+            if (parentScale == 0) parentScale = 1;
+            worldCanvas.transform.localPosition = offset / parentScale;
         }
     }
     
