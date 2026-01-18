@@ -118,8 +118,12 @@ public class AnimalController : MonoBehaviour
                     animalAnimator.PlayInteractionAnimation();
                 }
                 
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayAnimalSound(animalType.ToString());
+                }
+                
                 MessageBroadcaster.Instance.SendMessageToObject(gameObject, animalSound);
-                Debug.Log(animalSound);
             }
         }
     }

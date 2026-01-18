@@ -7,13 +7,17 @@ public class PlayerAnimator : MonoBehaviour
 {
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private SpriteRenderer toolSpriteRenderer;
+    private GameObject toolObject;
     
     private Vector2 lastMoveDirection;
     private bool isMoving;
     private bool isHurt = false;
     private bool isAttacking = false;
+    private bool isDigging = false;
     private Coroutine hurtCoroutine;
     private Coroutine attackCoroutine;
+    private Coroutine digCoroutine;
     
     private void Awake()
     {
@@ -22,11 +26,26 @@ public class PlayerAnimator : MonoBehaviour
         lastMoveDirection = Vector2.down;
         
         spriteRenderer.sortingOrder = GameConstants.Physics.PlayerSortingOrder;
+        
+        CreateToolSpriteRenderer();
+    }
+    
+    private void CreateToolSpriteRenderer()
+    {
+        toolObject = new GameObject("ToolSprite");
+        toolObject.transform.SetParent(transform);
+        toolObject.transform.localPosition = Vector3.zero;
+        toolObject.transform.localScale = Vector3.one;
+        
+        toolSpriteRenderer = toolObject.AddComponent<SpriteRenderer>();
+        toolSpriteRenderer.sortingOrder = GameConstants.Physics.PlayerSortingOrder + 1;
+        toolSpriteRenderer.sprite = null;
+        toolObject.SetActive(false);
     }
     
     public void UpdateMovement(Vector2 moveInput)
     {
-        if (isHurt || isAttacking) return;
+        if (isHurt || isAttacking || isDigging) return;
         
         bool wasMoving = isMoving;
         isMoving = moveInput.magnitude > 0.1f;
@@ -38,10 +57,12 @@ public class PlayerAnimator : MonoBehaviour
             if (moveInput.x < -0.1f)
             {
                 spriteRenderer.flipX = true;
+                toolSpriteRenderer.flipX = true;
             }
             else if (moveInput.x > 0.1f)
             {
                 spriteRenderer.flipX = false;
+                toolSpriteRenderer.flipX = false;
             }
         }
         
@@ -50,7 +71,7 @@ public class PlayerAnimator : MonoBehaviour
     
     private void UpdateAnimationState()
     {
-        if (animator == null || isHurt || isAttacking) return;
+        if (animator == null || isHurt || isAttacking || isDigging) return;
         
         animator.SetBool("IsMoving", isMoving);
         animator.SetFloat("MoveX", lastMoveDirection.x);
@@ -93,7 +114,6 @@ public class PlayerAnimator : MonoBehaviour
     
     public void PlayAttack()
     {
-        Debug.Log("PlayerAnimator.PlayAttack() called");
         if (attackCoroutine != null)
         {
             StopCoroutine(attackCoroutine);
@@ -104,32 +124,29 @@ public class PlayerAnimator : MonoBehaviour
     private IEnumerator AttackAnimation()
     {
         isAttacking = true;
-        Debug.Log("AttackAnimation coroutine started");
         
         if (animator != null)
         {
             animator.enabled = false;
-            Debug.Log("Animator disabled for attack");
         }
         
-        Sprite[] attackSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.Attack);
-        Debug.Log($"Attack sprites loaded: {(attackSprites != null ? attackSprites.Length.ToString() : "NULL")} sprites");
+        Sprite[] bodySprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.Attack);
+        Sprite[] toolSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.AttackTool);
         
-        if (attackSprites != null && attackSprites.Length > 0)
+        if (bodySprites != null && bodySprites.Length > 0)
         {
-            IAnimationStrategy attackStrategy = new OnceAnimationStrategy(attackSprites, 0.05f);
-            yield return StartCoroutine(attackStrategy.Play(spriteRenderer));
-            Debug.Log("Attack animation completed");
-        }
-        else
-        {
-            Debug.LogError("Failed to load attack sprites!");
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayAttackSound();
+            }
+            toolObject.SetActive(true);
+            yield return StartCoroutine(PlayLayeredAnimation(bodySprites, toolSprites, 0.05f));
+            toolObject.SetActive(false);
         }
         
         if (animator != null)
         {
             animator.enabled = true;
-            Debug.Log("Animator re-enabled after attack");
         }
         
         isAttacking = false;
@@ -143,6 +160,7 @@ public class PlayerAnimator : MonoBehaviour
             attackCoroutine = null;
         }
         isAttacking = false;
+        toolObject.SetActive(false);
         
         if (animator != null)
         {
@@ -150,9 +168,86 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
     
+    public void PlayDig()
+    {
+        if (digCoroutine != null)
+        {
+            StopCoroutine(digCoroutine);
+        }
+        digCoroutine = StartCoroutine(DigAnimation());
+    }
+    
+    private IEnumerator DigAnimation()
+    {
+        isDigging = true;
+        
+        if (animator != null)
+        {
+            animator.enabled = false;
+        }
+        
+        Sprite[] bodySprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.Dig);
+        Sprite[] toolSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.DigTool);
+        
+        if (bodySprites != null && bodySprites.Length > 0)
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayDigSound();
+            }
+            toolObject.SetActive(true);
+            yield return StartCoroutine(PlayLayeredAnimation(bodySprites, toolSprites, 0.05f));
+            toolObject.SetActive(false);
+        }
+        
+        if (animator != null)
+        {
+            animator.enabled = true;
+        }
+        
+        isDigging = false;
+    }
+    
+    public void StopDig()
+    {
+        if (digCoroutine != null)
+        {
+            StopCoroutine(digCoroutine);
+            digCoroutine = null;
+        }
+        isDigging = false;
+        toolObject.SetActive(false);
+        
+        if (animator != null)
+        {
+            animator.enabled = true;
+        }
+    }
+    
+    private IEnumerator PlayLayeredAnimation(Sprite[] bodySprites, Sprite[] toolSprites, float frameDelay)
+    {
+        int frameCount = bodySprites.Length;
+        
+        for (int i = 0; i < frameCount; i++)
+        {
+            spriteRenderer.sprite = bodySprites[i];
+            
+            if (toolSprites != null && i < toolSprites.Length)
+            {
+                toolSpriteRenderer.sprite = toolSprites[i];
+            }
+            
+            yield return new WaitForSeconds(frameDelay);
+        }
+    }
+    
     public bool IsAttacking()
     {
         return isAttacking;
     }
+    
+    public bool IsDigging()
+    {
+        return isDigging;
+    }
 }
-

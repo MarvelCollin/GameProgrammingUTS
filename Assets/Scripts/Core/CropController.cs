@@ -78,10 +78,14 @@ public class CropController : MonoBehaviour
                 isCollected = true;
                 player.CollectCrop();
                 
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayHarvestSound();
+                }
+                
                 string message = $"Crop harvested: {player.GetCropCount()}";
                 
                 MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
-                Debug.Log(message);
                 
                 if (cropAnimator != null)
                 {

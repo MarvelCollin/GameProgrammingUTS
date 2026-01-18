@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerAttackState : IPlayerState
+public class PlayerDigState : IPlayerState
 {
     private readonly PlayerController player;
     private readonly Rigidbody2D rb;
@@ -8,7 +8,7 @@ public class PlayerAttackState : IPlayerState
     private readonly float duration;
     private float timer;
 
-    public PlayerAttackState(PlayerController player, Rigidbody2D rb, PlayerAnimator animator, float duration)
+    public PlayerDigState(PlayerController player, Rigidbody2D rb, PlayerAnimator animator, float duration)
     {
         this.player = player;
         this.rb = rb;
@@ -22,7 +22,7 @@ public class PlayerAttackState : IPlayerState
         rb.linearVelocity = Vector2.zero;
         if (animator != null)
         {
-            animator.PlayAttack();
+            animator.PlayDig();
         }
     }
 
@@ -30,7 +30,7 @@ public class PlayerAttackState : IPlayerState
     {
         if (animator != null)
         {
-            animator.StopAttack();
+            animator.StopDig();
         }
     }
 

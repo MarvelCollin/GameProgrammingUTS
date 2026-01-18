@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     [Header("Combat Settings")]
     [SerializeField] private float hurtAnimationDuration = 0.5f;
     [SerializeField] private float attackAnimationDuration = 0.5f;
+    [SerializeField] private float digAnimationDuration = 0.65f;
     
     [Header("Collection")]
     [SerializeField] private int cropCount = 0;
@@ -43,6 +44,7 @@ public class PlayerController : MonoBehaviour
     private PlayerNormalState normalState;
     private PlayerHurtState hurtState;
     private PlayerAttackState attackState;
+    private PlayerDigState digState;
     
     private void Awake()
     {
@@ -53,6 +55,7 @@ public class PlayerController : MonoBehaviour
         normalState = new PlayerNormalState(this, rb, playerAnimator, moveSpeed);
         hurtState = new PlayerHurtState(this, rb, playerAnimator, hurtAnimationDuration);
         attackState = new PlayerAttackState(this, rb, playerAnimator, attackAnimationDuration);
+        digState = new PlayerDigState(this, rb, playerAnimator, digAnimationDuration);
         currentState = normalState;
         
         SetupCollider();
@@ -97,11 +100,17 @@ public class PlayerController : MonoBehaviour
     
     public void OnAttack(InputAction.CallbackContext context)
     {
-        Debug.Log($"OnAttack called - phase: {context.phase}, currentState: {currentState.GetType().Name}");
         if (context.performed && currentState == normalState)
         {
-            Debug.Log("Attack triggered! Changing to attack state.");
             ChangeState(attackState);
+        }
+    }
+    
+    public void OnDig(InputAction.CallbackContext context)
+    {
+        if (context.performed && currentState == normalState)
+        {
+            ChangeState(digState);
         }
     }
 
@@ -120,6 +129,11 @@ public class PlayerController : MonoBehaviour
         }
         
         if (currentState == attackState && attackState.IsComplete())
+        {
+            ChangeState(normalState);
+        }
+        
+        if (currentState == digState && digState.IsComplete())
         {
             ChangeState(normalState);
         }

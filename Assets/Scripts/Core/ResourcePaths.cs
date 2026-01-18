@@ -12,6 +12,9 @@ public static class ResourcePaths
             public const string Idle = HumanPath + "/IDLE/base_idle_strip9";
             public const string Hurt = HumanPath + "/HURT/base_hurt_strip8";
             public const string Attack = HumanPath + "/ATTACK/base_attack_strip10";
+            public const string AttackTool = HumanPath + "/ATTACK/tools_attack_strip10";
+            public const string Dig = HumanPath + "/DIG/base_dig_strip13";
+            public const string DigTool = HumanPath + "/DIG/tools_dig_strip13";
         }
 
         public static class Goblin

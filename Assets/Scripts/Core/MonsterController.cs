@@ -78,9 +78,13 @@ public class MonsterController : MonoBehaviour
                     monsterAnimator.PlayAttackAnimation();
                 }
                 
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayMonsterSound();
+                }
+                
                 string message = "Player is hurt";
                 MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
-                Debug.Log(message);
             }
         }
     }
