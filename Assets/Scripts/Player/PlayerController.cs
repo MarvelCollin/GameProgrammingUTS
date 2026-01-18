@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     
     [Header("Combat Settings")]
     [SerializeField] private float hurtAnimationDuration = 0.5f;
+    [SerializeField] private float attackAnimationDuration = 0.5f;
     
     [Header("Collection")]
     [SerializeField] private int cropCount = 0;
@@ -41,6 +42,7 @@ public class PlayerController : MonoBehaviour
     private IPlayerState currentState;
     private PlayerNormalState normalState;
     private PlayerHurtState hurtState;
+    private PlayerAttackState attackState;
     
     private void Awake()
     {
@@ -50,6 +52,7 @@ public class PlayerController : MonoBehaviour
         
         normalState = new PlayerNormalState(this, rb, playerAnimator, moveSpeed);
         hurtState = new PlayerHurtState(this, rb, playerAnimator, hurtAnimationDuration);
+        attackState = new PlayerAttackState(this, rb, playerAnimator, attackAnimationDuration);
         currentState = normalState;
         
         SetupCollider();
@@ -91,6 +94,16 @@ public class PlayerController : MonoBehaviour
         moveInput = context.ReadValue<Vector2>();
         currentState.UpdateMovement(moveInput);
     }
+    
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        Debug.Log($"OnAttack called - phase: {context.phase}, currentState: {currentState.GetType().Name}");
+        if (context.performed && currentState == normalState)
+        {
+            Debug.Log("Attack triggered! Changing to attack state.");
+            ChangeState(attackState);
+        }
+    }
 
     private void ChangeState(IPlayerState newState)
     {
@@ -102,6 +115,11 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         if (currentState == hurtState && hurtState.IsComplete())
+        {
+            ChangeState(normalState);
+        }
+        
+        if (currentState == attackState && attackState.IsComplete())
         {
             ChangeState(normalState);
         }

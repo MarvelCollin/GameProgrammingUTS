@@ -11,7 +11,9 @@ public class PlayerAnimator : MonoBehaviour
     private Vector2 lastMoveDirection;
     private bool isMoving;
     private bool isHurt = false;
+    private bool isAttacking = false;
     private Coroutine hurtCoroutine;
+    private Coroutine attackCoroutine;
     
     private void Awake()
     {
@@ -24,7 +26,7 @@ public class PlayerAnimator : MonoBehaviour
     
     public void UpdateMovement(Vector2 moveInput)
     {
-        if (isHurt) return;
+        if (isHurt || isAttacking) return;
         
         bool wasMoving = isMoving;
         isMoving = moveInput.magnitude > 0.1f;
@@ -48,7 +50,7 @@ public class PlayerAnimator : MonoBehaviour
     
     private void UpdateAnimationState()
     {
-        if (animator == null || isHurt) return;
+        if (animator == null || isHurt || isAttacking) return;
         
         animator.SetBool("IsMoving", isMoving);
         animator.SetFloat("MoveX", lastMoveDirection.x);
@@ -88,4 +90,69 @@ public class PlayerAnimator : MonoBehaviour
         }
         isHurt = false;
     }
+    
+    public void PlayAttack()
+    {
+        Debug.Log("PlayerAnimator.PlayAttack() called");
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+        }
+        attackCoroutine = StartCoroutine(AttackAnimation());
+    }
+    
+    private IEnumerator AttackAnimation()
+    {
+        isAttacking = true;
+        Debug.Log("AttackAnimation coroutine started");
+        
+        if (animator != null)
+        {
+            animator.enabled = false;
+            Debug.Log("Animator disabled for attack");
+        }
+        
+        Sprite[] attackSprites = SpriteFactory.LoadSpriteStrip(ResourcePaths.Characters.Human.Attack);
+        Debug.Log($"Attack sprites loaded: {(attackSprites != null ? attackSprites.Length.ToString() : "NULL")} sprites");
+        
+        if (attackSprites != null && attackSprites.Length > 0)
+        {
+            IAnimationStrategy attackStrategy = new OnceAnimationStrategy(attackSprites, 0.05f);
+            yield return StartCoroutine(attackStrategy.Play(spriteRenderer));
+            Debug.Log("Attack animation completed");
+        }
+        else
+        {
+            Debug.LogError("Failed to load attack sprites!");
+        }
+        
+        if (animator != null)
+        {
+            animator.enabled = true;
+            Debug.Log("Animator re-enabled after attack");
+        }
+        
+        isAttacking = false;
+    }
+    
+    public void StopAttack()
+    {
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+        isAttacking = false;
+        
+        if (animator != null)
+        {
+            animator.enabled = true;
+        }
+    }
+    
+    public bool IsAttacking()
+    {
+        return isAttacking;
+    }
 }
+

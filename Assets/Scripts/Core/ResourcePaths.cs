@@ -11,6 +11,7 @@ public static class ResourcePaths
             private const string HumanPath = CharactersPath + "/Human";
             public const string Idle = HumanPath + "/IDLE/base_idle_strip9";
             public const string Hurt = HumanPath + "/HURT/base_hurt_strip8";
+            public const string Attack = HumanPath + "/ATTACK/base_attack_strip10";
         }
 
         public static class Goblin
@@ -23,7 +24,8 @@ public static class ResourcePaths
         public static class Skeleton
         {
             private const string SkeletonPath = CharactersPath + "/Skeleton/PNG";
-            public const string Idle = SkeletonPath + "/skeleton_idle_strip6";  
+            public const string Idle = SkeletonPath + "/skeleton_idle_strip6";
+            public const string Attack = SkeletonPath + "/skeleton_attack_strip7";
         }
     }
 
