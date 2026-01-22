@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 11400000}
   - component: {fileID: 11400001}
   - component: {fileID: -1686826733301923371}
-  - component: {fileID: -8787788900529653485}
   m_Layer: 0
   m_Name: NPC_Goblin
   m_TagString: Untagged
@@ -131,6 +130,7 @@ MonoBehaviour:
   canInteract: 1
   interactionRange: 2
   autoLoadSprite: 1
+  isFriendlyNPC: 1
 --- !u!114 &11400001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,21 +176,9 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!114 &-8787788900529653485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8844260213886e74d9c8962a8b592366, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -35,6 +35,8 @@ public class AnimalController : MonoBehaviour
     private bool isDead;
     private float respawnTime = 10f;
     private float respawnTimer;
+
+    private Rigidbody2D rb;
     
     private void Awake()
     {
@@ -59,6 +61,14 @@ public class AnimalController : MonoBehaviour
         {
             animalAnimator = gameObject.AddComponent<AnimalAnimator>();
         }
+
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody2D>();
+        }
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         
         triggerCollider.isTrigger = true;
         triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius / GameConstants.Physics.DefaultScale;
@@ -69,9 +79,15 @@ public class AnimalController : MonoBehaviour
         LoadSprite();
 
         spawnPosition = transform.position;
-        targetPosition = spawnPosition;
+        targetPosition = GetNewRoamTarget();
         constantSoundTimer = Random.Range(0f, constantSoundInterval);
         roamTimer = Random.Range(0f, roamInterval);
+    }
+
+    private Vector3 GetNewRoamTarget()
+    {
+        Vector2 randomOffset = Random.insideUnitCircle * roamRadius;
+        return spawnPosition + new Vector3(randomOffset.x, randomOffset.y, 0);
     }
     
     private void LoadSprite()
@@ -97,6 +113,7 @@ public class AnimalController : MonoBehaviour
         HandleConstantSound();
         HandleEmoteTimer();
         HandleAttackCooldown();
+        HandleRoaming();
         CheckForNearbyAttack();
     }
 
@@ -115,6 +132,7 @@ public class AnimalController : MonoBehaviour
         isDead = false;
         triggerCollider.enabled = true;
         spriteRenderer.enabled = true;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
     }
 
     private void Die()
@@ -123,6 +141,30 @@ public class AnimalController : MonoBehaviour
         respawnTimer = respawnTime;
         triggerCollider.enabled = false;
         spriteRenderer.enabled = false;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+    }
+
+    private void HandleRoaming()
+    {
+        roamTimer -= Time.deltaTime;
+        
+        if (roamTimer <= 0)
+        {
+            roamTimer = roamInterval + Random.Range(-1f, 1f);
+            targetPosition = GetNewRoamTarget();
+        }
+
+        Vector3 direction = (targetPosition - transform.position);
+        if (direction.magnitude > 0.1f)
+        {
+            direction.Normalize();
+            rb.linearVelocity = new Vector2(direction.x, direction.y) * roamSpeed;
+            spriteRenderer.flipX = direction.x < 0;
+        }
+        else
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     private void CheckForNearbyAttack()

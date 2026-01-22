@@ -25,10 +25,20 @@ public class AudioManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeAudioSources();
+            InitializeGameSystems();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void InitializeGameSystems()
+    {
+        if (GameManager.Instance == null)
+        {
+            GameObject gameManagerObj = new GameObject("GameManager");
+            gameManagerObj.AddComponent<GameManager>();
         }
     }
     

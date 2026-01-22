@@ -32,6 +32,23 @@ public class NPCController : MonoBehaviour
     private bool isBeingAttacked;
     private float attackCooldown = 0.5f;
     private float attackTimer;
+
+    private bool isDead;
+    private float respawnTime = 10f;
+    private float respawnTimer;
+    private Vector3 spawnPositionNPC;
+
+    private Rigidbody2D rb;
+
+    public void SetNPCType(NPCType type)
+    {
+        npcType = type;
+        if (npcType == NPCType.Goblin)
+        {
+            isFriendlyNPC = true;
+        }
+        LoadSpriteBasedOnType();
+    }
     
     private void Awake()
     {
@@ -47,6 +64,8 @@ public class NPCController : MonoBehaviour
         triggerCollider.isTrigger = true;
         triggerCollider.radius = GameConstants.Physics.DefaultTriggerRadius / GameConstants.Physics.DefaultScale;
         
+        transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
+        
         if (worldSpaceUI == null)
         {
             worldSpaceUI = gameObject.AddComponent<WorldSpaceUI>();
@@ -57,8 +76,14 @@ public class NPCController : MonoBehaviour
         {
             npcAnimator = gameObject.AddComponent<NPCAnimator>();
         }
-        
-        transform.localScale = new Vector3(GameConstants.Physics.DefaultScale, GameConstants.Physics.DefaultScale, 1f);
+
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody2D>();
+        }
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         
         if (autoLoadSprite)
         {
@@ -66,6 +91,7 @@ public class NPCController : MonoBehaviour
         }
 
         spawnPosition = transform.position;
+        spawnPositionNPC = transform.position;
         targetPosition = spawnPosition;
         roamTimer = Random.Range(0f, roamInterval);
     }
@@ -86,11 +112,18 @@ public class NPCController : MonoBehaviour
     
     private void Update()
     {
+        if (isDead)
+        {
+            HandleRespawn();
+            return;
+        }
+
         if (isFriendlyNPC)
         {
             HandleEmoteTimer();
             HandleAttackCooldown();
             CheckForNearbyAttack();
+            HandleRoaming();
         }
         else if (canInteract && player != null)
         {
@@ -103,9 +136,64 @@ public class NPCController : MonoBehaviour
         }
     }
 
+    private void HandleRoaming()
+    {
+        roamTimer -= Time.deltaTime;
+        
+        if (roamTimer <= 0)
+        {
+            roamTimer = roamInterval + Random.Range(-1f, 1f);
+            Vector2 randomOffset = Random.insideUnitCircle * roamRadius;
+            targetPosition = spawnPosition + new Vector3(randomOffset.x, randomOffset.y, 0);
+        }
+
+        Vector3 direction = (targetPosition - transform.position);
+        if (direction.magnitude > 0.1f)
+        {
+            direction.Normalize();
+            if (rb != null)
+            {
+                rb.linearVelocity = new Vector2(direction.x, direction.y) * roamSpeed;
+            }
+            spriteRenderer.flipX = direction.x < 0;
+        }
+        else
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+        }
+    }
+
+    private void HandleRespawn()
+    {
+        respawnTimer -= Time.deltaTime;
+        if (respawnTimer <= 0)
+        {
+            Respawn();
+        }
+    }
+
+    private void Respawn()
+    {
+        transform.position = spawnPositionNPC;
+        isDead = false;
+        triggerCollider.enabled = true;
+        spriteRenderer.enabled = true;
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        respawnTimer = respawnTime;
+        triggerCollider.enabled = false;
+        spriteRenderer.enabled = false;
+    }
+
     private void CheckForNearbyAttack()
     {
-        if (isBeingAttacked || player == null) return;
+        if (isBeingAttacked || isDead || player == null) return;
 
         PlayerController playerController = player.GetComponent<PlayerController>();
         if (playerController == null) return;
@@ -115,14 +203,8 @@ public class NPCController : MonoBehaviour
 
         if (distance <= attackRange && playerController.IsAttacking())
         {
-            isBeingAttacked = true;
-            attackTimer = attackCooldown;
             ShowEmote("</3");
-
-            if (npcAnimator != null)
-            {
-                npcAnimator.PlayInteractionAnimation();
-            }
+            Die();
         }
     }
 
@@ -186,25 +268,19 @@ public class NPCController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!isFriendlyNPC) return;
+        if (!isFriendlyNPC || isDead) return;
 
         if (other.CompareTag(GameConstants.Tags.Player))
         {
             PlayerController playerController = other.GetComponent<PlayerController>();
             if (playerController != null)
             {
-                if (playerController.IsAttacking() && !isBeingAttacked)
+                if (playerController.IsAttacking())
                 {
-                    isBeingAttacked = true;
-                    attackTimer = attackCooldown;
                     ShowEmote("</3");
-
-                    if (npcAnimator != null)
-                    {
-                        npcAnimator.PlayInteractionAnimation();
-                    }
+                    Die();
                 }
-                else if (!playerController.IsAttacking() && !showingEmote)
+                else if (!showingEmote)
                 {
                     ShowEmote("<3");
 
@@ -219,16 +295,15 @@ public class NPCController : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (!isFriendlyNPC) return;
+        if (!isFriendlyNPC || isDead) return;
 
         if (other.CompareTag(GameConstants.Tags.Player))
         {
             PlayerController playerController = other.GetComponent<PlayerController>();
-            if (playerController != null && playerController.IsAttacking() && !isBeingAttacked)
+            if (playerController != null && playerController.IsAttacking())
             {
-                isBeingAttacked = true;
-                attackTimer = attackCooldown;
                 ShowEmote("</3");
+                Die();
             }
         }
     }

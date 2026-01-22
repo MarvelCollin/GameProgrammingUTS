@@ -165,9 +165,16 @@ public class CropController : MonoBehaviour
         if (other.CompareTag(GameConstants.Tags.Player))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            if (player != null && player.IsDigging() && isPlanted)
+            if (player != null)
             {
-                DigUp();
+                if (player.IsDigging() && isPlanted)
+                {
+                    DigUp();
+                }
+                else if (!isPlanted && !player.IsDigging())
+                {
+                    CollectCrop(player);
+                }
             }
         }
     }
@@ -177,12 +184,17 @@ public class CropController : MonoBehaviour
         isCollected = true;
         player.CollectCrop();
         
+        if (CropDataManager.Instance != null)
+        {
+            CropDataManager.Instance.AddCrop(cropType);
+        }
+        
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayHarvestSound();
         }
         
-        string message = $"Crop harvested: {player.GetCropCount()}";
+        string message = $"{cropType} harvested!";
         
         MessageBroadcaster.Instance.SendMessageToObject(gameObject, message);
         
