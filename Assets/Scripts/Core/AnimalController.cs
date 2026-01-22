@@ -291,6 +291,13 @@ public class AnimalController : MonoBehaviour
         return animalType;
     }
 
+    public void SetAnimalType(AnimalType type)
+    {
+        animalType = type;
+        SetAnimalSound();
+        LoadSprite();
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

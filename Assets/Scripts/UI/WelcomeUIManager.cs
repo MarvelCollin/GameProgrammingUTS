@@ -142,7 +142,7 @@ public class WelcomeUIManager : MonoBehaviour
         infoRect.anchoredPosition = new Vector2(0, -100);
 
         Text infoText = infoObj.AddComponent<Text>();
-        infoText.text = "Made by: Student Name\nStudent ID: 2702280352";
+        infoText.text = "Made by: Marvel Collin\nStudent ID: 2702280352";
         infoText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         infoText.fontSize = 20;
         infoText.alignment = TextAnchor.MiddleCenter;

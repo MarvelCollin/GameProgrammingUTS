@@ -116,6 +116,12 @@ public class CropController : MonoBehaviour
         return cropType;
     }
 
+    public void SetCropType(CropType type)
+    {
+        cropType = type;
+        LoadSprite();
+    }
+
     public void DigUp()
     {
         if (!isPlanted || isCollected) return;
